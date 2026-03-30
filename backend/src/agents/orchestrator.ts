@@ -1,8 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import { ContextAnswers, AnalysisResult } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
-const MODEL = 'gemini-3-flash-preview';
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY || '' });
+const MODEL = 'gemini-2.5-flash';
 
 const ANALYST_SYSTEM = `You are a ruthless startup analyst. Extract and structure exactly what is in the document - no fluff, no filler.
 

@@ -9,7 +9,7 @@ import { ContextAnswers, Objective } from '../types';
 
 const router = express.Router();
 
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+const UPLOADS_DIR = path.join('/tmp', 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const upload = multer({
