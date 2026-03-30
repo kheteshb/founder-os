@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { Analysis, FounderStore } from '../types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+// Vercel's filesystem is read-only — use /tmp on serverless, local data/ dir otherwise
+const DATA_DIR = process.env.VERCEL
+  ? '/tmp/founder-os-data'
+  : path.join(process.cwd(), 'data');
 const STORE_FILE = path.join(DATA_DIR, 'store.json');
 
 function ensureDataDir(): void {

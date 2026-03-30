@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import analyzeRouter from '../backend/src/routes/analyze';
