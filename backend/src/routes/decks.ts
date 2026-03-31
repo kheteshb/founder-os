@@ -22,8 +22,12 @@ import { ClarificationAnswer, Deck, DeckVersion, SlideChat, ChatMessage } from '
 
 const router = express.Router();
 
-const UPLOADS_DIR = path.join('/tmp', 'uploads');
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+const UPLOADS_DIR = path.join('/tmp', 'founder-os-uploads');
+
+// Lazy init — don't run at module load time (fails during Vercel build phase)
+function ensureUploadsDir() {
+  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 const upload = multer({
   dest: UPLOADS_DIR,
@@ -64,6 +68,7 @@ async function extractTextFromFile(filePath: string, mimetype: string): Promise<
 // POST /api/decks/parse
 // Body: FormData { file?: File, pastedText?: string, deckId?: string, deckName?: string }
 router.post('/parse', upload.single('file'), async (req: Request, res: Response) => {
+  ensureUploadsDir();
   let filePath: string | undefined;
 
   try {
