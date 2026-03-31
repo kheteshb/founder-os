@@ -1,19 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import NewAnalysis from './pages/NewAnalysis';
 import AnalysisView from './pages/AnalysisView';
-import History from './pages/History';
+import DeckHistory from './pages/DeckHistory';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
+          <Route index element={<Home />} />
           <Route path="new" element={<NewAnalysis />} />
-          <Route path="analysis/:id" element={<AnalysisView />} />
-          <Route path="history" element={<History />} />
+          <Route path="decks/:deckId/versions/:versionId" element={<AnalysisView />} />
+          <Route path="decks/:deckId" element={<DeckHistory />} />
         </Route>
       </Routes>
     </BrowserRouter>

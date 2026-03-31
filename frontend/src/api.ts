@@ -1,57 +1,82 @@
 import axios from 'axios';
-import { Analysis, AnalysisSummary, ContextAnswers } from './types';
+import {
+  ClarificationAnswer,
+  DeckSummary,
+  DeckWithVersions,
+  DeckVersion,
+  FullAnalysis,
+} from './types';
 
 const api = axios.create({
   baseURL: '/api',
-  timeout: 180000, // 3 min timeout for analysis
+  timeout: 180000,
 });
 
-export interface AnalyzePayload {
-  file?: File;
-  pastedText?: string;
-  context: ContextAnswers;
-  groupId?: string;
+export interface ParseResult {
+  deckId: string;
+  deckName: string;
+  versionId: string;
+  versionNumber: number;
+  slides: { index: number; title: string; content: string }[];
+  questions: { id: string; question: string; reason: string }[];
 }
 
-export async function analyzeDocument(payload: AnalyzePayload): Promise<Analysis> {
-  const formData = new FormData();
+export interface AnalyzeResult {
+  analysis: FullAnalysis;
+}
 
-  if (payload.file) {
-    formData.append('file', payload.file);
-  } else if (payload.pastedText) {
-    formData.append('pastedText', payload.pastedText);
-  }
+export interface ChatResult {
+  chatId: string;
+  reply: string;
+}
 
-  formData.append('objective', payload.context.objective);
-  formData.append('stage', payload.context.stage);
-  formData.append('raised', payload.context.raised);
-  formData.append('targetInvestor', payload.context.targetInvestor);
-  formData.append('whyInvestor', payload.context.whyInvestor);
-  formData.append('keyMetric', payload.context.keyMetric);
-  formData.append('biggestConcern', payload.context.biggestConcern);
-
-  if (payload.groupId) {
-    formData.append('groupId', payload.groupId);
-  }
-
-  const res = await api.post('/analyze', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+// Parse deck (step 1) - returns versionId, slides, questions
+export async function parseDeck(formData: FormData): Promise<ParseResult> {
+  const res = await api.post('/decks/parse', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
-
-  return res.data.analysis;
-}
-
-export async function getAnalysis(id: string): Promise<Analysis> {
-  const res = await api.get(`/analyze/${id}`);
   return res.data;
 }
 
-export async function getHistory(): Promise<AnalysisSummary[]> {
-  const res = await api.get('/history');
+// Run analysis (step 2)
+export async function analyzeVersion(
+  versionId: string,
+  answers: ClarificationAnswer[]
+): Promise<AnalyzeResult> {
+  const res = await api.post('/decks/analyze', { versionId, answers });
   return res.data;
 }
 
-export async function getGroupHistory(groupId: string): Promise<Analysis[]> {
-  const res = await api.get(`/history/group/${groupId}`);
+// Get all decks
+export async function getDecks(): Promise<DeckSummary[]> {
+  const res = await api.get('/decks');
+  return res.data;
+}
+
+// Get deck with versions
+export async function getDeck(deckId: string): Promise<DeckWithVersions> {
+  const res = await api.get(`/decks/${deckId}`);
+  return res.data;
+}
+
+// Get specific version
+export async function getVersion(deckId: string, versionId: string): Promise<DeckVersion> {
+  const res = await api.get(`/decks/${deckId}/versions/${versionId}`);
+  return res.data;
+}
+
+// Send chat message
+export async function sendChatMessage(
+  deckId: string,
+  versionId: string,
+  slideIndex: number,
+  message: string,
+  chatId?: string
+): Promise<ChatResult> {
+  const res = await api.post(`/decks/${deckId}/versions/${versionId}/chat`, {
+    slideIndex,
+    message,
+    chatId,
+  });
   return res.data;
 }

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Analysis, FounderStore } from '../types';
+import { Deck, DeckVersion, SlideChat, FounderStore } from '../types';
 
 // Vercel's filesystem is read-only — use /tmp on serverless, local data/ dir otherwise
 const DATA_DIR = process.env.VERCEL
@@ -17,13 +17,19 @@ function ensureDataDir(): void {
 function readStore(): FounderStore {
   ensureDataDir();
   if (!fs.existsSync(STORE_FILE)) {
-    return { analyses: [] };
+    return { decks: [], versions: [], chats: [] };
   }
   try {
     const raw = fs.readFileSync(STORE_FILE, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    // Ensure all fields exist (migration safety)
+    return {
+      decks: parsed.decks || [],
+      versions: parsed.versions || [],
+      chats: parsed.chats || [],
+    };
   } catch {
-    return { analyses: [] };
+    return { decks: [], versions: [], chats: [] };
   }
 }
 
@@ -32,22 +38,69 @@ function writeStore(store: FounderStore): void {
   fs.writeFileSync(STORE_FILE, JSON.stringify(store, null, 2), 'utf-8');
 }
 
-export function saveAnalysis(analysis: Analysis): void {
+// ── Deck operations ──────────────────────────────────────────────────────────
+
+export function saveDeck(deck: Deck): void {
   const store = readStore();
-  store.analyses.unshift(analysis);
+  const idx = store.decks.findIndex(d => d.id === deck.id);
+  if (idx >= 0) {
+    store.decks[idx] = deck;
+  } else {
+    store.decks.unshift(deck);
+  }
   writeStore(store);
 }
 
-export function getAnalyses(): Analysis[] {
-  return readStore().analyses;
+export function getDecks(): Deck[] {
+  return readStore().decks;
 }
 
-export function getAnalysisById(id: string): Analysis | undefined {
-  return readStore().analyses.find(a => a.id === id);
+export function getDeckById(id: string): Deck | undefined {
+  return readStore().decks.find(d => d.id === id);
 }
 
-export function getAnalysesByGroup(groupId: string): Analysis[] {
-  return readStore().analyses
-    .filter(a => a.groupId === groupId)
-    .sort((a, b) => a.version - b.version);
+// ── Version operations ───────────────────────────────────────────────────────
+
+export function saveVersion(version: DeckVersion): void {
+  const store = readStore();
+  const idx = store.versions.findIndex(v => v.id === version.id);
+  if (idx >= 0) {
+    store.versions[idx] = version;
+  } else {
+    store.versions.push(version);
+  }
+  writeStore(store);
+}
+
+export function getVersionById(id: string): DeckVersion | undefined {
+  return readStore().versions.find(v => v.id === id);
+}
+
+export function getVersionsByDeckId(deckId: string): DeckVersion[] {
+  return readStore().versions
+    .filter(v => v.deckId === deckId)
+    .sort((a, b) => a.versionNumber - b.versionNumber);
+}
+
+// ── Chat operations ──────────────────────────────────────────────────────────
+
+export function saveChat(chat: SlideChat): void {
+  const store = readStore();
+  const idx = store.chats.findIndex(c => c.id === chat.id);
+  if (idx >= 0) {
+    store.chats[idx] = chat;
+  } else {
+    store.chats.push(chat);
+  }
+  writeStore(store);
+}
+
+export function getChatById(id: string): SlideChat | undefined {
+  return readStore().chats.find(c => c.id === id);
+}
+
+export function getChatsByVersionAndSlide(versionId: string, slideIndex: number): SlideChat[] {
+  return readStore().chats.filter(
+    c => c.versionId === versionId && c.slideIndex === slideIndex
+  );
 }

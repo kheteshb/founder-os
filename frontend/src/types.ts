@@ -1,84 +1,88 @@
-export type Objective = 'fundraising' | 'hiring' | 'customers' | 'partnerships';
-
-export interface ContextAnswers {
-  stage: string;
-  raised: string;
-  targetInvestor: string;
-  whyInvestor: string;
-  keyMetric: string;
-  biggestConcern: string;
-  objective: Objective;
-}
-
-export interface SectionFeedback {
+export interface Slide {
+  index: number;
   title: string;
-  originalContent: string;
-  whatWorks: string;
-  whatIsWeak: string;
-  whatIsMissing: string;
-  whatIsConfusing: string;
-  whatToRemove: string;
+  content: string;
 }
 
-export interface ImprovementSuggestion {
-  priority: 'critical' | 'high' | 'medium';
-  section: string;
-  current: string;
-  suggested: string;
-  reasoning: string;
-}
-
-export interface InvestorQuestion {
+export interface ClarificationQuestion {
+  id: string;
   question: string;
-  whyAsked: string;
-  expectedAnswer: string;
+  reason: string;
 }
 
-export interface OverallAssessment {
-  clarityScore: number;
-  convictionScore: number;
-  investorAttractiveness: number;
-  executionRisk: number;
-  summary: string;
+export interface ClarificationAnswer {
+  questionId: string;
+  question: string;
+  answer: string;
 }
 
-export interface BrutalTruth {
-  rejectionReasons: string[];
-  biggestRisk: string;
-  founderBlindSpot: string;
+export interface OverallAnalysis {
+  verdict: 'invest' | 'maybe' | 'pass';
+  verdictReason: string;
+  topStrengths: string[];
+  topWeaknesses: string[];
+  keyRisks: string[];
+  missingCriticalInfo: string[];
 }
 
-export interface AnalysisResult {
-  overall: OverallAssessment;
-  sections: SectionFeedback[];
-  brutalTruth: BrutalTruth;
-  investorQuestions: InvestorQuestion[];
-  improvements: ImprovementSuggestion[];
-  coachingInsight: string;
+export interface SlideAnalysis {
+  slideIndex: number;
+  slideTitle: string;
+  whatWorks: string[];
+  whatIsWeak: string[];
+  whatIsMissing: string[];
+  whatShouldBeRemoved: string[];
+  brutalInvestorQuestions: string[];
 }
 
-export interface Analysis {
+export interface ProgressComparison {
+  improved: string[];
+  stayedSame: string[];
+  regressed: string[];
+  remainingGaps: string[];
+  verdictShift: string;
+}
+
+export interface FullAnalysis {
   id: string;
-  timestamp: string;
-  filename: string;
-  objective: Objective;
-  context: ContextAnswers;
-  extractedContent: string;
-  result: AnalysisResult;
-  version: number;
-  groupId?: string;
+  createdAt: string;
+  overall: OverallAnalysis;
+  slideAnalyses: SlideAnalysis[];
+  progressVsPrevious?: ProgressComparison;
 }
 
-export interface AnalysisSummary {
+export interface DeckVersion {
   id: string;
+  deckId: string;
+  versionNumber: number;
+  uploadedAt: string;
+  rawText: string;
+  slides: Slide[];
+  clarificationQuestions?: ClarificationQuestion[];
+  clarificationAnswers?: ClarificationAnswer[];
+  analysis?: FullAnalysis;
+}
+
+export interface Deck {
+  id: string;
+  name: string;
+  createdAt: string;
+  versionIds: string[];
+}
+
+export interface DeckSummary extends Deck {
+  versionCount: number;
+  latestVersionId?: string;
+  latestVerdict?: 'invest' | 'maybe' | 'pass';
+  latestAnalysisDate?: string;
+}
+
+export interface DeckWithVersions extends Deck {
+  versions: DeckVersion[];
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
   timestamp: string;
-  filename: string;
-  objective: Objective;
-  version: number;
-  groupId?: string;
-  overall: OverallAssessment;
-  context: {
-    stage: string;
-    targetInvestor: string;
-  };
 }
