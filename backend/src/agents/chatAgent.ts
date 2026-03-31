@@ -48,7 +48,8 @@ ${historyText ? `CONVERSATION SO FAR:\n${historyText}\n\n` : ''}Founder: ${userM
       contents: fullPrompt,
       config: {
         systemInstruction: SYSTEM_PROMPT,
-        maxOutputTokens: 2000,
+        maxOutputTokens: 4096,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 

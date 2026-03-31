@@ -53,7 +53,8 @@ Rules:
 - "regressed" means something got worse or a new problem was introduced
 - verdictShift format: "previous → current"`,
       config: {
-        maxOutputTokens: 3000,
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 

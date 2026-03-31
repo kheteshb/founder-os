@@ -23,7 +23,8 @@ If you cannot identify clear slide breaks, create logical sections based on the 
 PITCH DECK TEXT:
 ${rawText}`,
       config: {
-        maxOutputTokens: 8000,
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 

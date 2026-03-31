@@ -50,7 +50,8 @@ Format:
   ...
 ]`,
       config: {
-        maxOutputTokens: 3000,
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 

@@ -77,7 +77,8 @@ Rules:
 - brutalInvestorQuestions: 2-3 questions per slide that would end a meeting if unanswered`,
       config: {
         systemInstruction: SYSTEM_PROMPT,
-        maxOutputTokens: 12000,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
